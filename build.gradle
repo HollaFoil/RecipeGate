@@ -233,7 +233,7 @@ tasks.withType(JavaCompile).configureEach {
 
 publishMods {
     file = jar.archiveFile
-    changelog = "Initial release"
+    changelog = providers.environmentVariable("CHANGELOG")
     type = BETA
     version = mod_version
     displayName = jar.archiveFileName
