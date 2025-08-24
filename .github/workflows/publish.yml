@@ -21,13 +21,13 @@ jobs:
         id: get_version
         run: echo "mod_version=$(grep '^mod_version' gradle.properties | cut -d'=' -f2)" >> $GITHUB_OUTPUT
 
-      - name: "Generate release changelog"
+      - name: Generate release changelog
         id: changelog
         uses: janheinrichmerker/action-github-changelog-generator@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           unreleased-only: true
-          future-release: ${{ steps.get_version.outputs.mod_version }
+          future-release: ${{ steps.get_version.outputs.mod_version }}
 
       - run: ./gradlew build publishMods
         env:
