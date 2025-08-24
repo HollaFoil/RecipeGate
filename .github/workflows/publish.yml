@@ -32,7 +32,8 @@ jobs:
         uses: janheinrichmerker/action-github-changelog-generator@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          since_tag: ${{ steps.get_prev_tag.outputs.prev_tag }}
+          unreleased-only: true
+          future-release: ${{ steps.get_version.outputs.mod_version }
 
       - run: ./gradlew build publishMods
         env:
