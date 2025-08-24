@@ -4,15 +4,13 @@ plugins {
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'org.spongepowered.mixin' version '0.7.+'
+    id "me.modmuss50.mod-publish-plugin" version "0.8.4"
 }
 
-version = '1.20.1-0.1'
-group = "com.hollafoil"
-def mc_version = '1.20.1'
 def jei_version = '15.20.0.112'
 
 base {
-    archivesName = 'recipegate'
+    archivesName = "${mod_id}-${minecraft_version}-${mod_version}"
 }
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
@@ -156,9 +154,9 @@ dependencies {
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
-    compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
-    compileOnly fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}")
-    runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
+    compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
+    compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
+    runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
 
     compileOnly fg.deobf("curse.maven:astages-1120180:6892926")
     implementation fg.deobf("curse.maven:astages-1120180:6892926")
@@ -231,4 +229,17 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+publishMods {
+    file = jar.archiveFile
+    modLoaders.add("forge")
+    changelog = "Hello!"
+    type = STABLE
+
+    curseforge {
+        projectId = "1333816"
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        minecraftVersions.add("1.20.1")
+    }
 }
