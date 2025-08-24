@@ -233,15 +233,22 @@ tasks.withType(JavaCompile).configureEach {
 
 publishMods {
     file = jar.archiveFile
-    changelog = "Hello!"
+    changelog = "Initial release"
     type = BETA
     version = mod_version
-    displayName = mod_name
+    displayName = jar.archiveFileName
     modLoaders.add("forge")
 
-    curseforge {
-        projectId = "1333816"
-        accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
-        minecraftVersions.add("1.20.1")
+//    curseforge {
+//        projectId = "1333816"
+//        accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
+//        minecraftVersions.add("1.20.1")
+//    }
+
+    github {
+        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        repository = "hollafoil/recipegate"
+        commitish = "main"
+        //tagName = "release/${minecraft_version}-${mod_version}"
     }
 }
