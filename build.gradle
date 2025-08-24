@@ -234,7 +234,9 @@ tasks.withType(JavaCompile).configureEach {
 publishMods {
     file = jar.archiveFile
     changelog = "Hello!"
-    type = STABLE
+    type = BETA
+    version = mod_version
+    displayName = mod_name
     modLoaders.add("forge")
 
     curseforge {
