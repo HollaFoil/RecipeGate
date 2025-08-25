@@ -25,13 +25,13 @@ public class Restrictions {
         this.dataStore = dataStore;
     }
 
-    private void stageItem(ResourceLocation itemId) {
-        if (dataStore.stageItem(itemId)) countOfRestrictions++;
+    private void stageItem(ResourceLocation itemId, boolean initial) {
+        if (dataStore.stageItem(itemId, initial)) countOfRestrictions++;
     }
 
     private void stageItemCascade(ResourceLocation itemId) {
         RecipeGate.getLogger().info("Cascading initially with {}", itemId);
-        stageItem(itemId);
+        stageItem(itemId, true);
         cascadeRecipesIterative(itemId);
     }
 
@@ -82,7 +82,7 @@ public class Restrictions {
                         ResourceLocation outputItemId = ForgeRegistries.ITEMS.getKey(output.getItem());
                         if (dataStore.lockRecipeForOutputItem(outputItemId)) {
                             if (processed.contains(outputItemId) || outputItemId == null) continue;
-                            stageItem(outputItemId);
+                            stageItem(outputItemId, false);
                             stack.add(outputItemId);
                             processed.add(outputItemId);
                         }

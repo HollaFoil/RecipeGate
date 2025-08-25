@@ -30,6 +30,7 @@ public class DataStore {
     private final Map<String, ResourceLocation> stageToItem = new HashMap<>();
     private final Map<String, ResourceLocation> stageToRecipe = new HashMap<>();
     private final Map<ResourceLocation, Set<String>> itemToStages = new HashMap<>();
+    private final Set<ResourceLocation> initialStages = new HashSet<>();
 
     public DataStore() {}
 
@@ -68,17 +69,26 @@ public class DataStore {
         return totalIngredientsInRecipe.get(recipe);
     }
 
-    public Boolean lockRecipeForOutputItem(ResourceLocation outputItemId) {
+    public boolean lockRecipeForOutputItem(ResourceLocation outputItemId) {
         if (outputItemId == null) return false;
         int count = recipesLeft.getOrDefault(outputItemId, 0) - 1;
         recipesLeft.put(outputItemId, count);
         return count <= 0;
     }
+    
+    public boolean isInitialStage(ResourceLocation itemId) {
+        return initialStages.contains(itemId);
+    }
+    public boolean isInitialStage(Item item) {
+        return initialStages.contains(ForgeRegistries.ITEMS.getKey(item));
+    }
 
-    public Boolean stageItem(ResourceLocation itemId) {
+
+    public boolean stageItem(ResourceLocation itemId, boolean initial) {
         Item item = ForgeRegistries.ITEMS.getValue(itemId);
         if (item == null) return false;
         String stage = "item/" + itemId;
+        if (initial) initialStages.add(itemId);
 
         RecipeGate.getLogger().info("ITEM: Restricting {} via stage {}", itemId, stage);
         stageToItem.put(stage, itemId);
@@ -87,7 +97,7 @@ public class DataStore {
         return true;
     }
 
-    public Boolean stageRecipe(ResourceLocation recipeId, Integer groupId) {
+    public boolean stageRecipe(ResourceLocation recipeId, Integer groupId) {
         Recipe<?> recipe = getRecipe(recipeId);
         if (recipe == null) {
             RecipeGate.getLogger().warn("Attempted to stage non-existent recipe: {}", recipeId);
@@ -108,11 +118,11 @@ public class DataStore {
         return true;
     }
 
-    public Boolean isRecipeRestricted(String recipeStage) {
+    public boolean isRecipeRestricted(String recipeStage) {
         return recipeRestrictions.contains(recipeStage);
     }
 
-    public Boolean isRecipeRestricted(ResourceLocation recipeId, int groupId) {
+    public boolean isRecipeRestricted(ResourceLocation recipeId, int groupId) {
         String stageId = recipeId.getPath() + "_group_" + groupId;
         return isRecipeRestricted(stageId);
     }
@@ -149,6 +159,10 @@ public class DataStore {
 
             Set<String> itemStages = getStagesUsingItem(outputItemId);
             if (itemStages == null) continue;
+            if (isInitialStage(outputItemId)) {
+                RecipeGate.getLogger().info("NOT granting stage for output of recipe {}, because that item is an initial restriction", recipeId);
+                continue;
+            }
 
             for (String itemStage : itemStages) {
                 RecipeGate.getLogger().info("Granting stage {} for output of recipe {}", itemStage, recipeId);
